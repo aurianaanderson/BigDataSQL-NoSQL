@@ -1,0 +1,124 @@
+#import pymongo
+import pymongo
+import json
+from datetime import datetime
+
+from bson import ObjectId
+from pymongo import MongoClient
+from pymongo.errors import ServerSelectionTimeoutError
+
+
+uri = 'mongodb+srv://andersonau:AAunrnidaerson1!@dse6210-sql-nosql.wrnvx.mongodb.net/?retryWrites=true&w=majority&appName=DSE6210-SQL-NoSQL'
+client = MongoClient(uri)
+
+try:
+    client = MongoClient(uri)
+    db = client['project2']
+    airlines_collection = db['airlines']
+    print(f'Connection successful!, database = {db} and collection =  {airlines_collection}')
+except ServerSelectionTimeoutError as e:
+    print(f"Error connecting to MongoDB: {e}")
+
+sample_doc = {
+    '_id': ObjectId(),
+    'passenger': {
+        'passenger_id': 9754345678,
+        'first_name': 'Walter',
+        'last_name': 'White',
+        'phone_number': '+1-678-543-2109',
+        'email_address': 'walter.white@gmail.com',
+        'address': {
+          'address_lines' : '678 Passenger Way',
+          'city' : 'Atlanta',
+         'state' : 'GA',
+            'country': 'USA'
+    },
+         'other_passenger_details' :{
+             'frequent_flyer': True,
+             'level': 'Executive'
+         }
+},
+    'reservations': [
+        {
+            'agent': {
+                'agent_id': 2345,
+                'agent_name': 'QuickTravel',
+                'agent_details': 'Online booking'
+            },
+            'reservation_id': 9876545678,
+            'date_reservation_made': datetime(2025,3, 7),
+            'number_in_party': 8,
+            'reservation_status': {
+                'status_code': 'UNCONF',
+                'description': 'unconfirmed'
+            },
+            'ticket_type':{
+                'type_code':'NONREF',
+                'description': 'Non-Refundable'
+            },
+            'ticket_class':{
+                'class_code':'F',
+                'description':'First Class'
+            },
+            'payments': [
+                {
+                    'payment_id': 933652,
+                    'payment_status': {
+                        'status_code': 'UNPAID',
+                        'description': 'Payment unsuccessful'
+                    },
+                    'payment_date': datetime(2025, 3, 7),
+                    'payment_amount': 987654.76
+                }
+            ],
+            'itinerary_legs': [
+                {
+                    'leg_id': 999,
+                    'flight_number': 'B613',
+                    'origin_airport': {
+                        'airport_code' : 'LAX',
+                        'airport_name' : 'Los Angeles International Airport',
+                        'airport_location': 'Los Angeles, CA',
+                        'other_details': {
+                            'runways': 12,
+                            'timezone': 'PST',
+                            'terminals': 28
+                        }
+                    },
+                    'destination_airport': {
+                        'airport_code' : 'BOS',
+                        'airport_name' : 'General Edward Lawrence Logan International Airport',
+                        'airport_location': 'Boston, MA',
+                        'other_details':{
+                            'runways': 14,
+                            'timezone': 'EST',
+                            'terminals': 30
+                        }
+                    },
+                    'departure_date_time': datetime(2025,3,5,7,5),
+                    'arrival_date_time':datetime(2025,3,6,10,0),
+                    'actual_departure_time': datetime(2025,3,5,7,30),
+                    'actual_arrival_time':  datetime(2025, 3,6, 12, 0),
+                }
+            ],
+            'flight_cost': {
+                'flight_number': 'B613',
+	            'aircraft_type_code' : 'Cessna V',
+	            'valid_from_date' : datetime(2025, 2,3),
+	            'valid_to_date' : datetime(2025,2,17),
+	            'flight_cost': 19723.53
+            },
+            'ref_calendar':{
+                'day_date': datetime(2025,3,6),
+                'day_number': 65,
+                'business_day_yn': 'Yes'
+            }
+        }
+    ]
+}
+
+airline_result = airlines_collection.insert_one(sample_doc)
+print(f'Document successfully inserted with the following ID: {airline_result.inserted_id}')
+
+for document in airlines_collection.find():
+    print(document)
